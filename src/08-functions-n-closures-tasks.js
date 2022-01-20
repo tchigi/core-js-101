@@ -8,7 +8,6 @@
  *                                                                                             *
  ********************************************************************************************* */
 
-
 /**
  * Returns the functions composition of two specified functions f(x) and g(x).
  * The result of compose is to be a function of one argument, (lets call the argument x),
@@ -23,10 +22,11 @@
  *   getComposition(Math.sin, Math.asin)(x) => Math.sin(Math.asin(x))
  *
  */
-function getComposition(/* f, g */) {
-  throw new Error('Not implemented');
+function getComposition(f, g) {
+  return function k(x) {
+    return f(g(x));
+  };
 }
-
 
 /**
  * Returns the math power function with the specified exponent
@@ -44,10 +44,11 @@ function getComposition(/* f, g */) {
  *   power05(16) => 4
  *
  */
-function getPowerFunction(/* exponent */) {
-  throw new Error('Not implemented');
+function getPowerFunction(exponent) {
+  return function exp(x) {
+    return x ** exponent;
+  };
 }
-
 
 /**
  * Returns the polynom function of one argument based on specified coefficients.
@@ -62,10 +63,17 @@ function getPowerFunction(/* exponent */) {
  *   getPolynom(8)     => y = 8
  *   getPolynom()      => null
  */
-function getPolynom() {
-  throw new Error('Not implemented');
+function getPolynom(...arg) {
+  return function p(x) {
+    let exp = arg.length - 1;
+    let sum = 0;
+    for (let i = 0; i < arg.length; i += 1) {
+      sum += arg[i] * x ** exp;
+      exp -= 1;
+    }
+    return sum;
+  };
 }
-
 
 /**
  * Memoizes passed function and returns function
@@ -81,10 +89,17 @@ function getPolynom() {
  *   ...
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  let first = true;
+  let cache = 0;
+  return function mem() {
+    if (first) {
+      cache = func();
+      first = false;
+    }
+    return cache;
+  };
 }
-
 
 /**
  * Returns the function trying to call the passed function and if it throws,
@@ -101,10 +116,19 @@ function memoize(/* func */) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  return function p() {
+    try {
+      const t = func();
+      return t;
+    } catch (er) {
+      if (attempts > 0) {
+        return p(func, attempts - 1);
+      }
+      return attempts;
+    }
+  };
 }
-
 
 /**
  * Returns the logging wrapper for the specified method,
@@ -129,10 +153,23 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  return function f(...arg) {
+    let str = `${func.name}(`;
+    for (let i = 0; i < arg.length; i += 1) {
+      if (i === 0) {
+        str = `${str}${JSON.stringify(arg[i])}`;
+      } else {
+        str = `${str},${JSON.stringify(arg[i])}`;
+      }
+    }
+    str = `${str})`;
+    logFunc(`${str} starts`);
+    const res = func(...arg);
+    logFunc(`${str} ends`);
+    return res;
+  };
 }
-
 
 /**
  * Return the function with partial applied arguments
@@ -147,10 +184,11 @@ function logger(/* func, logFunc */) {
  *   partialUsingArguments(fn, 'a','b','c')('d') => 'abcd'
  *   partialUsingArguments(fn, 'a','b','c','d')() => 'abcd'
  */
-function partialUsingArguments(/* fn, ...args1 */) {
-  throw new Error('Not implemented');
+function partialUsingArguments(fn, ...args1) {
+  return function p(...args2) {
+    return fn(...args1, ...args2);
+  };
 }
-
 
 /**
  * Returns the id generator function that returns next integer starting
@@ -169,10 +207,13 @@ function partialUsingArguments(/* fn, ...args1 */) {
  *   getId4() => 7
  *   getId10() => 11
  */
-function getIdGeneratorFunction(/* startFrom */) {
-  throw new Error('Not implemented');
+function getIdGeneratorFunction(startFrom) {
+  let cache = startFrom;
+  return function p() {
+    cache += 1;
+    return cache - 1;
+  };
 }
-
 
 module.exports = {
   getComposition,
